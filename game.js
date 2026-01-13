@@ -10,7 +10,6 @@ function PrintBoard() {
         `);
 }
 
-PrintBoard();
 // all right now we need to know how to get user input in node.
 
 // rl.question("What do you think of Node.js? ", (answer) => {
@@ -20,6 +19,7 @@ PrintBoard();
 // now that we know how to get user input, lets make the game loop!
 
 async function GameLoop() {
+  PrintBoard();
   let loop_state = true;
   let player = "X";
   for (; loop_state; ) {
@@ -46,14 +46,31 @@ async function GameLoop() {
       } else if (player == "O") {
         player = "X";
       }
-      console.clear();
+      // console.clear();
       // console.log("Console was cleared!");
       PrintBoard();
     } else {
       console.log("Square Taken, Choose another one!");
     }
+    // console.log("Evualting Game!");
+    var result = evaluateGameState();
+    // console.log(`Result: ${result}`);
+    if (result !== "") {
+      loop_state = false;
+      console.log(`Player ${result} won the Game!`);
+      handleGameEnd();
+    } else {
+      let draw = true;
+      for (let i = 0; i < board.length; i++) {
+        if (board[i] === " ") draw = false;
+      }
+      if (draw) {
+        loop_state = false;
+        console.log("Draw");
+        handleGameEnd();
+      }
+    }
   }
-  // loop_state = false;
 }
 GameLoop();
 // alr now i need to know when a player wins or draws the game
@@ -64,35 +81,81 @@ GameLoop();
 function evaluateGameState() {
   var winner = "";
   //horizontal
-  if (((board[0] === board[1]) === board[2]) !== " ") {
+  // console.log(
+  //   `First Condition: ${
+  //     board[0] === board[1] && board[0] === board[2]
+  //   }\n Second Condition: ${board[0] === "X" || board[0] === "O"}\n
+  //   Third Condition: ${board[1] !== " "}`
+  // );
+  if (board[0] === board[1] && board[0] === board[2] && board[0] !== " ") {
     //first horizontal
+    console.log("Win from First Row");
     winner = board[0];
-  } else if (((board[3] === board[4]) === board[5]) !== " ") {
+  } else if (
+    board[3] === board[4] &&
+    board[3] === board[5] &&
+    board[3] !== " "
+  ) {
     //second horizontal
+
+    console.log("Win from Second Row");
     winner = board[3];
-  } else if (((board[6] === board[7]) === board[8]) !== " ") {
+  } else if (
+    board[6] === board[7] &&
+    board[6] === board[8] &&
+    board[6] !== " "
+  ) {
     //third horizontal
+    console.log("Win form Third Row");
     winner = board[6];
   }
   //vertical
-  if (((board[0] === board[3]) === board[6]) !== " ") {
+  if (board[0] === board[3] && board[0] === board[6] && board[0] !== " ") {
     //first vertical
+    console.log("Win from First Column");
     winner = board[0];
-  } else if (((board[1] === board[4]) === board[7]) !== " ") {
+  } else if (
+    board[1] === board[4] &&
+    board[1] === board[7] &&
+    board[1] !== " "
+  ) {
     //second vertical
+    console.log("Win from Second Column");
     winner = board[1];
-  } else if (((board[2] === board[5]) === board[8]) !== " ") {
+  } else if (
+    board[2] === board[5] &&
+    board[2] === board[8] &&
+    board[2] !== " "
+  ) {
     //third vertical
+    console.log("Win from Third Column");
     winner = board[2];
   }
   //diagonal
-  if (((board[0] === board[4]) === board[8]) !== " ") {
+  if (board[0] === board[4] && board[0] === board[8] && board[0] !== " ") {
     //first diagonal
+    console.log("Win from First Diagonal");
     winner = board[0];
-  } else if (((board[2] === board[4]) === board[6]) !== " ") {
+  } else if (
+    board[2] === board[4] &&
+    board[2] === board[6] &&
+    board[2] !== " "
+  ) {
     //second diagonal
+    console.log("Win from Second Diagonal");
     winner = board[2];
   }
   return winner;
 }
 // now we need to integrate this evualtion function into the gameloop.
+//now we need draw logic at the end!
+
+async function handleGameEnd() {
+  const response = await rl.question("Play again? (Y/N)");
+  if (response === "y" || response === "Y") {
+    board = [" ", " ", " ", " ", " ", " ", " ", " ", " "];
+    GameLoop();
+  } else {
+    process.exit(0);
+  }
+}
